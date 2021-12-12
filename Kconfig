@@ -1,7 +1,9 @@
-#config RTL8192CE
-config RTL8192CE
+config 8192CE
 	tristate "Realtek 8192C PCI WiFi"
-	depends on PCI
+	depends on WLAN && PCI && CFG80211
+	depends on m
+	select WIRELESS_EXT
+	select WEXT_PRIV
 	---help---
-	  Help message of RTL8192CE
+	  If you know the usage of this driver and want to get a stable one, select it.
 
