@@ -4,6 +4,6 @@ config 8192CE
 	depends on m
 	select WIRELESS_EXT
 	select WEXT_PRIV
-	---help---
-	  If you know the usage of this driver and want to get a stable one, select it.
+	help
+	If you know the usage of this driver and want to get a stable one, select it.
 
