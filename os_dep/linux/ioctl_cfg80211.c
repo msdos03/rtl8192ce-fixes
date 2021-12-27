@@ -503,6 +503,19 @@ void rtw_cfg80211_indicate_connect(_adapter *padapter)
 	if(pmlmepriv->to_roaming > 0) {
 		//rtw_cfg80211_inform_bss(padapter, cur_network);
 		DBG_871X("%s call cfg80211_roamed\n", __FUNCTION__);
+		#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
+		{
+			struct cfg80211_roam_info roam_info = {
+				.channel = NULL,
+				.bssid = cur_network->network.MacAddress,
+				.req_ie = cur_network->network.IEs+_FIXED_IE_LENGTH_,
+				.req_ie_len = cur_network->network.IELength-_FIXED_IE_LENGTH_,
+				.resp_ie = NULL,
+				.resp_ie_len = 0,
+			};
+			cfg80211_roamed(padapter->pnetdev, &roam_info, GFP_ATOMIC);
+		}
+		#else
 		cfg80211_roamed(padapter->pnetdev,
 			#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 39)
 			NULL,
@@ -511,6 +524,7 @@ void rtw_cfg80211_indicate_connect(_adapter *padapter)
 			cur_network->network.IEs+_FIXED_IE_LENGTH_, cur_network->network.IELength-_FIXED_IE_LENGTH_,
 			NULL, 0, GFP_ATOMIC
 		);
+		#endif
 	}
 	else 
 	#endif
