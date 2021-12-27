@@ -88,12 +88,36 @@ void rtw_cfg80211_rx_action_p2p(_adapter *padapter, u8 *pmgmt_frame, uint frame_
 
 int rtw_cfg80211_set_mgnt_wpsp2pie(struct net_device *net, char *buf, int len, int type);
 
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,4,0))  && !defined(COMPAT_KERNEL_RELEASE)
+#define rtw_cfg80211_rx_mgmt(adapter, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt((adapter)->pnetdev, freq, buf, len, gfp)
+#elif (LINUX_VERSION_CODE < KERNEL_VERSION(3,6,0))
+#define rtw_cfg80211_rx_mgmt(adapter, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt((adapter)->pnetdev, freq, sig_dbm, buf, len, gfp)
+#elif (LINUX_VERSION_CODE < KERNEL_VERSION(3,12,0))
+#define rtw_cfg80211_rx_mgmt(adapter, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt((adapter)->rtw_wdev, freq, sig_dbm, buf, len, gfp)
+#elif (LINUX_VERSION_CODE < KERNEL_VERSION(3,18,0))
+#define rtw_cfg80211_rx_mgmt(adapter, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt((adapter)->rtw_wdev, freq, sig_dbm, buf, len, 0, gfp)
+#else
+#define rtw_cfg80211_rx_mgmt(adapter, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt((adapter)->rtw_wdev, freq, sig_dbm, buf, len, 0)
+#endif
+
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,4,0))
-#define rtw_cfg80211_rx_mgmt(dev, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt(dev, freq, buf, len, gfp)
 #define rtw_cfg80211_send_rx_assoc(dev, bss, buf, len) cfg80211_send_rx_assoc(dev, buf, len)
 #else
-#define rtw_cfg80211_rx_mgmt(dev, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt(dev, freq, sig_dbm, buf, len, gfp)
 #define rtw_cfg80211_send_rx_assoc(dev, bss, buf, len) cfg80211_send_rx_assoc(dev, bss, buf, len)
+#endif
+
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,6,0))
+#define rtw_cfg80211_ready_on_channel(adapter, cookie, chan, channel_type, duration, gfp)  cfg80211_ready_on_channel((adapter)->pnetdev, cookie, chan, channel_type, duration, gfp)
+#elif (LINUX_VERSION_CODE < KERNEL_VERSION(3,8,0))
+#define rtw_cfg80211_ready_on_channel(adapter, cookie, chan, channel_type, duration, gfp)  cfg80211_ready_on_channel((adapter)->rtw_wdev, cookie, chan, channel_type, duration, gfp)
+#else
+#define rtw_cfg80211_ready_on_channel(adapter, cookie, chan, channel_type, duration, gfp)  cfg80211_ready_on_channel((adapter)->rtw_wdev, cookie, chan, duration, gfp)
+#endif
+
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,6,0))
+#define rtw_cfg80211_mgmt_tx_status(adapter, cookie, buf, len, ack, gfp) cfg80211_mgmt_tx_status((adapter)->pnetdev, cookie, buf, len, ack, gfp)
+#else
+#define rtw_cfg80211_mgmt_tx_status(adapter, cookie, buf, len, ack, gfp) cfg80211_mgmt_tx_status((adapter)->rtw_wdev, cookie, buf, len, ack, gfp)
 #endif
 
 #endif //__IOCTL_CFG80211_H__

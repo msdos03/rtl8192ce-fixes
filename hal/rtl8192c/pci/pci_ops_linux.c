@@ -885,7 +885,11 @@ static u32 pci_write_port(struct intf_hdl *pintfhdl, u32 addr, u32 cnt, u8 *wmem
 {
 	_adapter			*padapter = (_adapter *)pintfhdl->padapter;
 
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 7, 0))
 	padapter->pnetdev->trans_start = jiffies;
+#else
+	netif_trans_update(padapter->pnetdev);
+#endif
 
 	return 0;
 }

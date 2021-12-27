@@ -1916,7 +1916,6 @@ static int __init rtw_drv_entry(void)
 
 	RT_TRACE(_module_hci_intfs_c_,_drv_err_,("+rtw_drv_entry\n"));
 	DBG_871X("rtw driver version=%s\n", DRIVERVERSION);
-	DBG_871X("Build at: %s %s\n", __DATE__, __TIME__);
 	pci_drvpriv.drv_registered = _TRUE;
 
 

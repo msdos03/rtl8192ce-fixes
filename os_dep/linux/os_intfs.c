@@ -269,6 +269,7 @@ static int	rtw_proc_cnt = 0;
 
 void rtw_proc_init_one(struct net_device *dev)
 {
+#if(LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0))
 	struct proc_dir_entry *dir_dev = NULL;
 	struct proc_dir_entry *entry=NULL;
 	_adapter	*padapter = rtw_netdev_priv(dev);
@@ -599,6 +600,9 @@ void rtw_proc_init_one(struct net_device *dev)
 	}
 	entry->write_proc = proc_set_rssi_disp;
 
+#else /* kernel version < 3.10 */
+		DBG_871X(KERN_ERR "Unable to create /proc entry in this kernel version\n");
+#endif
 }
 
 void rtw_proc_remove_one(struct net_device *dev)
@@ -877,7 +881,20 @@ unsigned int rtw_classify8021d(struct sk_buff *skb)
 	return dscp >> 5;
 }
 
+#if (LINUX_VERSION_CODE>=KERNEL_VERSION(5,2,0))
+static u16 rtw_select_queue(struct net_device *dev, struct sk_buff *skb,
+			    struct net_device *sb_dev)
+#elif (LINUX_VERSION_CODE>=KERNEL_VERSION(4,19,0))
+static u16 rtw_select_queue(struct net_device *dev, struct sk_buff *skb,
+			    struct net_device *sb_dev,
+			    select_queue_fallback_t fallback)
+#elif (LINUX_VERSION_CODE>=KERNEL_VERSION(3,14,0))
+static u16 rtw_select_queue(struct net_device *dev, struct sk_buff *skb,
+			    void *accel_priv,
+			    select_queue_fallback_t fallback)
+#else
 static u16 rtw_select_queue(struct net_device *dev, struct sk_buff *skb)
+#endif
 {
 	_adapter	*padapter = rtw_netdev_priv(dev);
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
@@ -959,6 +976,10 @@ int rtw_init_netdev_name(struct net_device *pnetdev, const char *ifname)
 	return 0;
 }
 
+static const struct device_type wlan_type = {
+	.name = "wlan",
+};
+
 struct net_device *rtw_init_netdev(_adapter *old_padapter)	
 {
 	_adapter *padapter;
@@ -974,6 +995,7 @@ struct net_device *rtw_init_netdev(_adapter *old_padapter)
 	if (!pnetdev)
 		return NULL;
 
+	pnetdev->dev.type = &wlan_type;
 	padapter = rtw_netdev_priv(pnetdev);
 	padapter->pnetdev = pnetdev;	
 
@@ -1022,28 +1044,27 @@ u32 rtw_start_drv_threads(_adapter *padapter)
 
 	RT_TRACE(_module_os_intfs_c_,_drv_info_,("+rtw_start_drv_threads\n"));
 #ifdef CONFIG_XMIT_THREAD_MODE
-	padapter->xmitThread = kernel_thread(rtw_xmit_thread, padapter, CLONE_FS|CLONE_FILES);
-	if(padapter->xmitThread < 0)
+	padapter->xmitThread = kthread_run(rtw_xmit_thread, padapter, "RTW_XMIT_THREAD");
+	if(IS_ERR(padapter->xmitThread))
 		_status = _FAIL;
 #endif
 
 #ifdef CONFIG_RECV_THREAD_MODE
-	padapter->recvThread = kernel_thread(rtw_recv_thread, padapter, CLONE_FS|CLONE_FILES);
-	if(padapter->recvThread < 0)
+	padapter->recvThread = kthread_run(rtw_recv_thread, padapter, "RTW_RECV_THREAD");
+	if(IS_ERR(padapter->recvThread))
 		_status = _FAIL;	
 #endif
 
-	padapter->cmdThread = kernel_thread(rtw_cmd_thread, padapter, CLONE_FS|CLONE_FILES);
-	if(padapter->cmdThread < 0)
+	padapter->cmdThread = kthread_run(rtw_cmd_thread, padapter, "RTW_CMD_THREAD");
+	if(IS_ERR(padapter->cmdThread))
 		_status = _FAIL;
 	else
 		_rtw_down_sema(&padapter->cmdpriv.terminate_cmdthread_sema); //wait for cmd_thread to run
-		
 
-#ifdef CONFIG_EVENT_THREAD_MODE
-	padapter->evtThread = kernel_thread(event_thread, padapter, CLONE_FS|CLONE_FILES);
-	if(padapter->evtThread < 0)
-		_status = _FAIL;		
+#ifdef CONFIG_EVENT_THREAD_MODE	
+	padapter->evtThread = kthread_run(event_thread, padapter, "RTW_EVENT_THREAD");
+	if(IS_ERR(padapter->evtThread))
+		_status = _FAIL;	
 #endif
 
 	return _status;

@@ -59,10 +59,13 @@
 //================================================================================
 
 
-static void
-BlinkTimerCallback(
-	unsigned long data
-	);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
+//static void BlinkTimerCallback(unsigned long data);
+void BlinkTimerCallback(unsigned long data);
+#else
+// static void BlinkTimerCallback(struct timer_list *t);
+void BlinkTimerCallback(struct timer_list *t);
+#endif
 
 //================================================================================
 // LED_819xUsb routines. 
@@ -90,7 +93,11 @@ InitLed871x(
 	pLed->BlinkTimes = 0;
 	pLed->BlinkingLedState = LED_UNKNOWN;
 
-	_init_timer(&(pLed->BlinkTimer), padapter->pnetdev, BlinkTimerCallback, pLed);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
+        _init_timer(&(pLed->BlinkTimer), padapter->pnetdev, BlinkTimerCallback, pLed);
+#else
+        timer_setup(&pLed->BlinkTimer, BlinkTimerCallback, 0);
+#endif
 
 }
 
@@ -915,12 +922,19 @@ SwLedBlink10(
 //		Callback function of LED BlinkTimer, 
 //		it just schedules to corresponding BlinkWorkItem.
 //
-static void
-BlinkTimerCallback(
-	unsigned long data
-	)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
+// static void BlinkTimerCallback(void *data)
+void BlinkTimerCallback(void *data)
+#else
+// static void BlinkTimerCallback(struct timer_list *t)
+void BlinkTimerCallback(struct timer_list *t)
+#endif
 {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
 	PLED_871x	 	pLed = (PLED_871x)data;
+#else
+	PLED_871x	 	pLed = from_timer(pLed, t, BlinkTimer);
+#endif
 	_adapter			*padapter = pLed->padapter;
 	struct led_priv	*ledpriv = &(padapter->ledpriv);
 
@@ -1444,7 +1458,7 @@ SwLedControlMode5(
 					pLed0->BlinkingLedState = RTW_LED_OFF; 
 				else
 					pLed0->BlinkingLedState = RTW_LED_ON; 
-					_set_timer(&(pLed0->BlinkTimer), LED_BLINK_NORMAL_INTERVAL_NETTRONIX);
+				_set_timer(&(pLed0->BlinkTimer), LED_BLINK_NORMAL_INTERVAL_NETTRONIX);
 			}		
 			break;
 
@@ -1535,7 +1549,7 @@ SwLedControlMode6(
 					pLed0->BlinkingLedState = RTW_LED_OFF; 
 				else
 					pLed0->BlinkingLedState = RTW_LED_ON; 
-					_set_timer(&(pLed0->BlinkTimer), LED_BLINK_NORMAL_INTERVAL_PORNET);
+				_set_timer(&(pLed0->BlinkTimer), LED_BLINK_NORMAL_INTERVAL_PORNET);
 			}		
 			break;
 

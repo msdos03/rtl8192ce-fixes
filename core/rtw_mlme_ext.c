@@ -5371,7 +5371,7 @@ unsigned int OnAction_public(_adapter *padapter, union recv_frame *precv_frame)
 
 						//	Commented by Kurt 20120113
 						//	Get peer_dev_addr here if peer doesn't issue prov_disc frame.
-						if( _rtw_memcmp(pwdinfo->rx_prov_disc_info.peerDevAddr, empty_addr, ETH_ALEN) );
+						if( _rtw_memcmp(pwdinfo->rx_prov_disc_info.peerDevAddr, empty_addr, ETH_ALEN) )
 							_rtw_memcpy(pwdinfo->rx_prov_disc_info.peerDevAddr, GetAddr2Ptr(pframe), ETH_ALEN);
 
 						result = process_p2p_group_negotation_req( pwdinfo, frame_body, len );
