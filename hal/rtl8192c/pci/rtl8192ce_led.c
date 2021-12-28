@@ -60,10 +60,8 @@
 
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
-//static void BlinkTimerCallback(unsigned long data);
-void BlinkTimerCallback(unsigned long data);
+void BlinkTimerCallback(void *data);
 #else
-// static void BlinkTimerCallback(struct timer_list *t);
 void BlinkTimerCallback(struct timer_list *t);
 #endif
 
@@ -923,10 +921,8 @@ SwLedBlink10(
 //		it just schedules to corresponding BlinkWorkItem.
 //
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
-// static void BlinkTimerCallback(void *data)
 void BlinkTimerCallback(void *data)
 #else
-// static void BlinkTimerCallback(struct timer_list *t)
 void BlinkTimerCallback(struct timer_list *t)
 #endif
 {
