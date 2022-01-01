@@ -10287,7 +10287,7 @@ u8 setkey_hdl(_adapter *padapter, u8 *pbuf)
 u8 set_stakey_hdl(_adapter *padapter, u8 *pbuf)
 {
 	u16 ctrl=0;
-	u8 cam_id;//cam_entry
+	u8 cam_id=0;//cam_entry
 	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	struct set_stakey_parm	*pparm = (struct set_stakey_parm *)pbuf;
@@ -11694,7 +11694,7 @@ void rtw_add_bcn_ie(_adapter *padapter, WLAN_BSSID_EX *pnetwork, u8 index, u8 *d
 	PNDIS_802_11_VARIABLE_IEs	pIE;
 	u8	bmatch = _FALSE;
 	u8	*pie = pnetwork->IEs;
-	u8	*p, *dst_ie, *premainder_ie=NULL, *pbackup_remainder_ie=NULL;
+	u8	*p=NULL, *dst_ie=NULL, *premainder_ie=NULL, *pbackup_remainder_ie=NULL;
 	u32	i, offset, ielen, ie_offset, remainder_ielen = 0;
 
 	for (i = sizeof(NDIS_802_11_FIXED_IEs); i < pnetwork->IELength;)
@@ -11733,6 +11733,9 @@ void rtw_add_bcn_ie(_adapter *padapter, WLAN_BSSID_EX *pnetwork, u8 index, u8 *d
 		else
 			dst_ie = (p+ielen);
 	}
+
+	if(dst_ie == NULL)
+		return;
 
 	if(remainder_ielen>0)
 	{

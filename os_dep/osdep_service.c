@@ -482,7 +482,7 @@ inline void dbg_rtw_mfree(u8 *pbuf, u32 sz, const char *func, int line)
 #endif
 
 
-void _rtw_memcpy(void* dst, void* src, u32 sz)
+void _rtw_memcpy(void* dst, const void* src, u32 sz)
 {
 
 #if defined (PLATFORM_LINUX)|| defined (PLATFORM_FREEBSD)
@@ -499,7 +499,7 @@ void _rtw_memcpy(void* dst, void* src, u32 sz)
 
 }
 
-int	_rtw_memcmp(void *dst, void *src, u32 sz)
+int	_rtw_memcmp(const void *dst, const void *src, u32 sz)
 {
 
 #if defined (PLATFORM_LINUX)|| defined (PLATFORM_FREEBSD)
