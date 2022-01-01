@@ -3265,7 +3265,7 @@ _func_enter_;
 	}
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,6,0))
-	cfg80211_remain_on_channel_expired(pcfg80211_wdinfo->remain_on_ch_dev, 
+	cfg80211_remain_on_channel_expired(padapter->pnetdev, 
 										pcfg80211_wdinfo->remain_on_ch_cookie, 
 										&pcfg80211_wdinfo->remain_on_ch_channel,
 										pcfg80211_wdinfo->remain_on_ch_type, GFP_KERNEL);
