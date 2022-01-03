@@ -1,6 +1,6 @@
 config 8192CE
 	tristate "Realtek 8192C PCI WiFi"
-	depends on WLAN && PCI && CFG80211
+	depends on WLAN && PCI
 	depends on m
 	select WIRELESS_EXT
 	select WEXT_PRIV
