@@ -1,4 +1,7 @@
 # rtl8192ce-fixes
+DEPRECIATED
+rtlwifi unstable problem have been solved. I am going to send it to linux kernel.
+
 The mac80211 driver of rtl8192ce is very unstable, so this rtl871x driver is to solve this problem. Currently support the latest kernel(5.15). Only support WEXT interface now, planning to fix cfg80211 support later.
 
 The current rtlwifi and rtl8192ce the old released driver by realtek are both mac80211 drivers, they seemed to be greatly reduced and without many functions. 
