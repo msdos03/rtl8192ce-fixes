@@ -1,4 +1,5 @@
 # rtl8192ce-fixes
+<a href="https://996.icu"><img src="https://img.shields.io/badge/link-996.icu-red.svg" alt="996.icu" /></a>
 DEPRECIATED
 rtlwifi unstable problem have been solved. I am going to send it to linux kernel.
 
